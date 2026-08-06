@@ -39,4 +39,12 @@ router.route("/completeTrip").post(verifyJWT, completeTrip);
 
 router.route("/getVehicleTripHistory").post(verifyJWT, verifyManager, getVehicleTripHistory);
 
+
+
+
+router.get("/check", checkCabinetRequest);
+
+router.post("/opened", cabinetOpened);
+
+
 export default router;

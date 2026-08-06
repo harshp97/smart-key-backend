@@ -230,6 +230,7 @@ export const requestCabinetUnlock = async (req, res) => {
             {
                 $set: {
                     status: "active",
+                    cabinet_status: "open_requested",
                     "timestamps.released_at": Date.now()
                 }
             },
@@ -271,20 +272,20 @@ export const requestCabinetUnlock = async (req, res) => {
         // 5. TRIGGER THE ESP32 HARDWARE
         // Pop the physical lock (simulated by LED right now)
         // ==========================================
-        const ESP32_IP = process.env.ESP32_IP;
-        const slotNumber = populatedTrip.vehicle_id.slot || 1; // Fallback to 1
+        // const ESP32_IP = process.env.ESP32_IP;
+        // const slotNumber = populatedTrip.vehicle_id.slot || 1; // Fallback to 1
         
-        try {
-            // We use fetch to send a GET request to the ESP32
-            await fetch(`http://${ESP32_IP}/open?slot=${slotNumber}`, { 
-                method: 'GET',
-                signal: AbortSignal.timeout(3000) // Timeout after 3s so the backend doesn't hang if ESP32 is off
-            });
-            console.log(`[HARDWARE] Successfully sent open command to ESP32 for slot ${slotNumber}`);
-        } catch (hardwareError) {
-            console.error("[HARDWARE] Trigger failed. Is the ESP32 online?", hardwareError.message);
-            // We do NOT return an error to the frontend here, because the DB updates were already successful.
-        }
+        // try {
+        //     // We use fetch to send a GET request to the ESP32
+        //     await fetch(`http://${ESP32_IP}/open?slot=${slotNumber}`, { 
+        //         method: 'GET',
+        //         signal: AbortSignal.timeout(3000) // Timeout after 3s so the backend doesn't hang if ESP32 is off
+        //     });
+        //     console.log(`[HARDWARE] Successfully sent open command to ESP32 for slot ${slotNumber}`);
+        // } catch (hardwareError) {
+        //     console.error("[HARDWARE] Trigger failed. Is the ESP32 online?", hardwareError.message);
+        //     // We do NOT return an error to the frontend here, because the DB updates were already successful.
+        // }
 
 
         // 6. RETURN HTTP RESPONSE: Send slot data back to open the physical cabinet box
@@ -298,6 +299,90 @@ export const requestCabinetUnlock = async (req, res) => {
         return res.status(500).json({ message: error.message || "Failed to process key box unlock." });
     }
 };
+
+
+
+
+export const checkCabinetRequest = async (req, res) => {
+    try {
+
+        const trip = await Trip.findOne({
+            status: "active",
+            cabinet_status: "open_requested"
+        })
+        .populate("vehicle_id", "slot");
+
+        if (!trip) {
+            return res.status(200).json({
+                success: false,
+                message: "No request"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            trip_id: trip._id,
+            slot: trip.vehicle_id.slot
+        });
+
+    } catch (err) {
+
+        return res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+};
+
+export const cabinetOpened = async (req, res) => {
+
+    try {
+
+        const { trip_id } = req.body;
+
+        if (!trip_id) {
+            return res.status(400).json({
+                success: false,
+                message: "trip_id required"
+            });
+        }
+
+        const trip = await Trip.findByIdAndUpdate(
+            trip_id,
+            {
+                $set: {
+                    cabinet_status: "opened"
+                }
+            },
+            {
+                returnDocument: "after"
+            }
+        );
+
+        if (!trip) {
+            return res.status(404).json({
+                success: false,
+                message: "Trip not found"
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: "Cabinet marked opened"
+        });
+
+    } catch (err) {
+
+        return res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+
+};
+
 
 
 // 5. Complete Trip & Return Key (Driver Action)

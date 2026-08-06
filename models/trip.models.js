@@ -10,6 +10,7 @@ const tripSchema = new Schema(
     purpose: { type: String, required: true },
     crew_members: { type: String, required: true },
     status: { type: String, enum: ["requested", "approved", "active", "completed", "rejected"], default: "requested" },
+    cabinet_status: { type: String, enum: ["waiting","open_requested","opened"], default: "waiting" },
     odo_start: { type: Number },
     odo_end: { type: Number },
     timestamps: {
@@ -18,6 +19,7 @@ const tripSchema = new Schema(
       released_at: { type: Date }, 
       returned_at: { type: Date }  
     }
+
   },
   { timestamps: true }
 );
