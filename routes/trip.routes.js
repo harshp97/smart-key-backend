@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requestTrip, approveTrip, rejectTrip, requestCabinetUnlock, getMyActiveTrip, getPendingTrips, getOnlyActiveTrips, completeTrip, getVehicleTripHistory } from "../controllers/trip.controller.js"; 
+import { requestTrip, approveTrip, rejectTrip, requestCabinetUnlock, getMyActiveTrip, getPendingTrips, getOnlyActiveTrips, completeTrip, getVehicleTripHistory, checkCabinetRequest, cabinetOpened } from "../controllers/trip.controller.js"; 
 import { verifyJWT, verifyManager } from "../middlewares/auth.middleware.js";
 
 const router = Router();
