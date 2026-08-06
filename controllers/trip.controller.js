@@ -110,7 +110,7 @@ export const approveTrip = async (req, res) => {
                     "timestamps.approved_at": Date.now()
                 } 
             },
-            { new: true }
+            { returnDocument: "after" }
         );
 
         if (!trip) {
@@ -172,7 +172,7 @@ export const rejectTrip = async (req, res) => {
                     manager_id: manager_id
                 } 
             },
-            { new: true }
+            { returnDocument: "after" }
         );
 
         if (!trip) {
@@ -419,7 +419,7 @@ export const completeTrip = async (req, res) => {
                     "timestamps.returned_at": Date.now()
                 }
             },
-            { new: true }
+            { returnDocument: "after" }
         );
 
         // 4. ATOMIC VEHICLE UPDATE: Return status to 'available', sync odometer, bring key home
