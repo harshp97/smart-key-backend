@@ -42,9 +42,8 @@ router.route("/getVehicleTripHistory").post(verifyJWT, verifyManager, getVehicle
 
 
 
-router.get("/check", checkCabinetRequest);
-
-router.post("/opened", cabinetOpened);
+router.route("/checkCabinetRequest").get(verifyJWT, checkCabinetRequest);
+router.route("/cabinetOpened").post(verifyJWT, cabinetOpened);
 
 
 export default router;
