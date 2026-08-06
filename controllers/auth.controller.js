@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production", // false on localhost
-    sameSite: 'lax', // Add this: Allows cookies on cross-origin (different ports)
+    sameSite: 'none', // Add this: Allows cookies on cross-origin (different ports)
     path: '/'        // Ensure the cookie is available for all routes
 };
 
